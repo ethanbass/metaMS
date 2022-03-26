@@ -3,7 +3,7 @@
 ## of the known unknowns; the second is the msp object containing the standards that are actually found
 
 constructExpPseudoSpectra <- function(allMatches, standardsDB) {
-    allAnnotations <- sort(unique(unlist(sapply(allMatches$annotations, function(x) x[, "annotation"]))))
+    allAnnotations <- sort(unique(unlist(lapply(allMatches$annotations, function(x) x[, "annotation"]))))
     
     stdDB <- lapply(allAnnotations[allAnnotations > 0], function(x) c(standardsDB[[x]], list(DB.idx = x)))
     
@@ -12,12 +12,16 @@ constructExpPseudoSpectra <- function(allMatches, standardsDB) {
         unknDB <- allMatches$unknowns
         
         if ("RI" %in% colnames(unknDB[[1]])) {
-            extra.info <- data.frame(Name = paste("Unknown", 1:length(unknDB)), DB.idx = sort(allAnnotations[allAnnotations < 
-                0], decreasing = TRUE), rt = sapply(unknDB, function(x) round(mean(x[, "rt"]), 2)), RI = sapply(unknDB, function(x) round(mean(x[, 
-                "RI"]), 0)), Class = "Unknown", stringsAsFactors = FALSE)
+            extra.info <- data.frame(Name = paste("Unknown", seq_along(unknDB)),
+                                     DB.idx = sort(allAnnotations[allAnnotations < 0], decreasing = TRUE),
+                                    rt = sapply(unknDB, function(x) round(mean(x[, "rt"]), 2)),
+                                    RI = sapply(unknDB, function(x) round(mean(x[, "RI"]), 0)),
+                                    Class = "Unknown", stringsAsFactors = FALSE)
         } else {
-            extra.info <- data.frame(Name = paste("Unknown", 1:length(unknDB)), DB.idx = sort(allAnnotations[allAnnotations < 
-                0], decreasing = TRUE), rt = sapply(unknDB, function(x) round(mean(x[, "rt"]), 2)), Class = "Unknown", stringsAsFactors = FALSE)
+            extra.info <- data.frame(Name = paste("Unknown", seq_along(unknDB)),
+                          DB.idx = sort(allAnnotations[allAnnotations < 0], decreasing = TRUE),
+                          rt = sapply(unknDB, function(x) round(mean(x[, "rt"]), 2)),
+                          Class = "Unknown", stringsAsFactors = FALSE)
         }
         unkn.msp <- construct.msp(spectra = unknDB, extra.info)
         
