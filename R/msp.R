@@ -147,13 +147,12 @@ read.msp <- function(file, only.org = FALSE,
   ## an msp object. All elements that can be converted into numbers are
   ## converted, unless explicitly stated in the exception list. Element
   ## "Num Peaks" is treated separately.
-  read.compound <- function(strs, noNumbers) {
+  read.compound <- function(strs, noNumbers){
     if (is.null(noNumbers))
-        noNumbers <-  c("Name", "CAS", "stdFile",
+        noNumbers <-  c("Name", "Synon", "Formula", "CAS", "stdFile",
                         "date", "validated", "ChemspiderID",
                         "SMILES", "InChI", "Class", "comment",
-                        "csLinks")
-    
+                        "Comment", "csLinks")
     fields.idx <- grep(":", strs)
     fields <- sapply(strsplit(strs[fields.idx], ":"), "[[", 1)
     
@@ -210,11 +209,11 @@ read.msp <- function(file, only.org = FALSE,
 
   huhn <- scan(file, what = "", sep = "\n", quiet = TRUE)
   
-  starts <- which(regexpr("Name: ", huhn) == 1)
+  starts <- grep("Name: ", huhn)
   ends <- c(starts[-1] - 1, length(huhn))
   
   if (only.org) { ## filter out those compounds with non-organic elements
-    formulas <- which(regexpr("Formula:", huhn) == 1)
+    formulas <- grep("Formula:", huhn)
 
     if (length(formulas) > 0) {
       orgs <- is.org(huhn[formulas], org.set)
@@ -224,7 +223,7 @@ read.msp <- function(file, only.org = FALSE,
   }
   
   
-  lapply(seq_len(length(starts)),
+  lapply(seq_along(starts),
          function(i)
          read.compound(huhn[starts[i]:ends[i]], noNumbers = noNumbers))
 }
@@ -320,7 +319,7 @@ to.msp <- function(object, file = NULL,
 
 ## SearchNIST is a function added to assist user accessing their own copy of NIST database
 ## starting from a MSP file created by to.msp function
-## The fucntion will help creating the connection between R and NIST mass spectral library search tool on Windows OS
+## The function will help creating the connection between R and NIST mass spectral library search tool on Windows OS
 ## Require NIST MS (Mass Spectral) Search Program Version 2.0 or higher AND Windows OS
 ## Please remove AUTOIMP.MSD file from C:\NISTMS\MSSEARCH before first launch
 # GUITTON Yann - 2015 Laberca
